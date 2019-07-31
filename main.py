@@ -8,6 +8,8 @@ import screen as sc
 import data_parser as dp
 import label_draw as ld
 import csv
+import tkinter as tk
+from tkinter import filedialog
 
 def rec_csv(complete_time, complete_field_left, complete_field_right, complete_label, path):
     path = path.replace('.hdf5', '')
@@ -19,8 +21,9 @@ def rec_csv(complete_time, complete_field_left, complete_field_right, complete_l
         print(" Weird : lentime = " + str(len_time) + " ; lenleft = " + str(len_left) + " ; lenright = " + str(len_right) + " ; lenlabel = " + str(len_label))
         raise IndexError
 
+    complete_time = complete_time - complete_time[0]
     with open(path + '.csv', 'w') as csvfile:
-        spamwriter = csv.writer(csvfile, delimiter=':',
+        spamwriter = csv.writer(csvfile, delimiter=',',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
         spamwriter.writerow(['time', 'left_field', 'right_field', 'label;S0F1R2L3'])
         for i in range(len_time):
@@ -39,13 +42,17 @@ def ask_for_ending():
                 return True
 
 def main():
+    win = tk.Tk()
+    win.filename = filedialog.askdirectory(initialdir="~", title="Select file")
+    print(dp.path_finder(win.filename))
+
     pygame.init()
     pygame.display.set_caption("video display")
     screen = pygame.display.set_mode([1700, 856])
     imageDisplay = sc.PGVideoDisplay(screen, size=(900, 450), position=(0, 0))
     oscilloDisplay = osc.PGOscilloscope(screen, size=(1700, 400), position=(0, 456), max_value=32768)
     labelDisplay = ld.PGlabeldraw(screen, size=(1700, 0), position=(0, 450))
-    video_path, h5_path = dp.path_finder('Test14')
+    video_path, h5_path = dp.path_finder(win.filename) #        dp.path_finder(win.filename)
     count, list_of_frame = dp.video_to_frames(video_path)
     dset = dp.Data_set(h5_path)
     index = 0
@@ -57,6 +64,7 @@ def main():
         tsup = dset.allDset['image_time_dataset'][index + 1]
         left = dset.get_index_range_from_time((tinf, tsup), 'field_left_dataset')
         right = dset.get_index_range_from_time((tinf, tsup), 'field_right_dataset')
+        print(tinf, tsup)
         labelDisplay.update(dset.get_index_range_from_time((tinf, tsup), 'complete_direction'))
         oscilloDisplay.update(left, right)
 
@@ -101,6 +109,7 @@ def main():
                     if event.key == K_RETURN:
                         answer = ask_for_ending()
                         if answer:
+                            print('Redording')
                             rec_csv(dset.allDset['complete_time_field'],
                                     dset.allDset['field_left_dataset'],
                                     dset.allDset['field_right_dataset'],

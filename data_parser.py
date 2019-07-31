@@ -6,15 +6,17 @@ import os
 from matplotlib import pyplot as plt
 
 def path_finder(argv):
-    video_exists = os.path.isfile(str(argv) + '/' + str(argv) + '.avi')
-    h5_exists = os.path.isfile(str(argv) + '/' + str(argv) + '.hdf5')
+    title = argv.split('/')[-1]
+    print(title)
+    video_exists = os.path.isfile(str(argv) + '/' + str(title) + '.avi')
+    h5_exists = os.path.isfile(str(argv) + '/' + str(title) + '.hdf5')
 
     if not (video_exists and h5_exists):
         print("video file or signal file is missing")
         sys.exit(0)
 
-    video_path = str(argv) + '/' + str(argv) + '.avi'
-    h5py_path = str(argv) + '/' + str(argv) + '.hdf5'
+    video_path = str(argv) + '/' + str(title) + '.avi'
+    h5py_path = str(argv) + '/' + str(title) + '.hdf5'
 
     return video_path, h5py_path
 
@@ -221,7 +223,7 @@ class Data_set():
 
         for dset in flist:
             # print(dset)
-            allDSet[dset] = f.get(dset).value
+            allDSet[dset] = f[(dset)]
 
         fieldshape = allDSet['field_right_dataset'][2:-1].shape
 
@@ -288,10 +290,17 @@ class Data_set():
             return np.arange(index_begin, index_end)
 
 if __name__ == "__main__":
-    argv = 'Test11'
+    argv = 'bee1bis'
     video_path, h5_path = path_finder(argv)
     count, list_of_frame = video_to_frames(video_path)
-    allDset = Data_set(h5_path)
+    dset = Data_set(h5_path)
+
+    plt.figure(1)
+    plt.plot(dset.allDset['field_time_dataset'][:])
+    plt.show()
+    plt.figure(2)
+    plt.plot(dset.allDset['image_time_dataset'][:])
+    plt.show()
 
 
 

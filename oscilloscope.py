@@ -19,6 +19,7 @@ class PGOscilloscope():
                                                            self.position[1] + self.size[1]//2],
                                                           [self.position[0] + self.size[0],
                                                            self.position[1] + self.size[1]//2]], 1)
+        #print(left)
         left = self.shape_it_shape_it(left)
         right = self.shape_it_shape_it(right)
         #print(left)
